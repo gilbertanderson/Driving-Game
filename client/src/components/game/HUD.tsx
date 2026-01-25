@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useCallback } from "react";
 import { useRacing } from "@/lib/stores/useRacing";
 
 export function HUD() {
@@ -9,31 +9,9 @@ export function HUD() {
     totalLaps,
     currentLapTime,
     bestLapTime,
-    lapTimes,
     cameraMode,
     toggleCamera
   } = useRacing();
-
-  const [displayTime, setDisplayTime] = useState(0);
-  const [raceTime, setRaceTime] = useState(0);
-
-  useEffect(() => {
-    if (phase !== "racing") return;
-
-    const interval = setInterval(() => {
-      setDisplayTime(prev => prev + 100);
-      setRaceTime(prev => prev + 100);
-    }, 100);
-
-    return () => clearInterval(interval);
-  }, [phase]);
-
-  useEffect(() => {
-    if (phase === "racing" && currentLap === 1 && currentLapTime === 0) {
-      setDisplayTime(0);
-      setRaceTime(0);
-    }
-  }, [phase, currentLap, currentLapTime]);
 
   const formatTime = useCallback((ms: number) => {
     const minutes = Math.floor(ms / 60000);
@@ -151,7 +129,7 @@ export function HUD() {
             Current Lap
           </div>
           <div style={{ color: "#FFFFFF", fontSize: 28, fontWeight: 600, fontFamily: "monospace" }}>
-            {formatTime(displayTime)}
+            {formatTime(currentLapTime)}
           </div>
         </div>
 
