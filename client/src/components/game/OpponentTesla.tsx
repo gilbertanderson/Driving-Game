@@ -6,7 +6,7 @@ import { useRacing } from "@/lib/stores/useRacing";
 
 export function OpponentTesla() {
   const groupRef = useRef<THREE.Group>(null);
-  const { scene } = useGLTF("/models/tesla-model-y.glb");
+  const { scene } = useGLTF("/models/ford-mustang.glb");
   
   const { 
     phase, 
@@ -110,7 +110,7 @@ export function OpponentTesla() {
       if (child.material) {
         const material = (child.material as THREE.MeshStandardMaterial).clone();
         if (material.color) {
-          material.color.setHex(0x1a237e); // Dark blue
+          material.color.setHex(0xE82127); // Red
         }
         child.material = material;
       }

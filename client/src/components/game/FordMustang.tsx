@@ -10,7 +10,7 @@ interface VehicleProps {
 
 export function FordMustang({ onPositionUpdate }: VehicleProps) {
   const groupRef = useRef<THREE.Group>(null);
-  const { scene } = useGLTF("/models/ford-mustang.glb");
+  const { scene } = useGLTF("/models/tesla-model-y.glb");
   
   const { 
     phase, 
@@ -130,7 +130,7 @@ export function FordMustang({ onPositionUpdate }: VehicleProps) {
       if (child.material) {
         const material = (child.material as THREE.MeshStandardMaterial).clone();
         if (material.color) {
-          material.color.setHex(0xE82127); // Red
+          material.color.setHex(0x1a237e); // Blue
         }
         child.material = material;
       }
@@ -170,4 +170,4 @@ export function FordMustang({ onPositionUpdate }: VehicleProps) {
   );
 }
 
-useGLTF.preload("/models/ford-mustang.glb");
+useGLTF.preload("/models/tesla-model-y.glb");
