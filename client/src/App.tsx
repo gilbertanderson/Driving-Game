@@ -14,6 +14,7 @@ import { ChristmasTree } from "./components/game/ChristmasTree";
 import { PostProcessing } from "./components/game/PostProcessing";
 import { TireSmoke } from "./components/game/TireSmoke";
 import { EngineSound } from "./components/game/EngineSound";
+import { TouchControls } from "./components/game/TouchControls";
 import { useRacing } from "./lib/stores/useRacing";
 
 enum Controls {
@@ -127,6 +128,7 @@ function Game() {
       <HUD />
       <Menu />
       <ChristmasTree />
+      <TouchControls />
       <EngineSound />
       <CameraToggleHandler />
     </>

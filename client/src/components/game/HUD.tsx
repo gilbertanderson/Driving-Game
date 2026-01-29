@@ -32,15 +32,15 @@ export function HUD() {
         zIndex: 50
       }}
     >
-      {/* Bottom HUD */}
+      {/* Bottom HUD - positioned above touch controls */}
       <div
         style={{
           position: "absolute",
-          bottom: 0,
+          bottom: 100,
           left: 0,
           right: 0,
-          padding: "20px",
-          background: "linear-gradient(transparent, rgba(0,0,0,0.8))"
+          padding: "15px 20px",
+          background: "linear-gradient(transparent, rgba(0,0,0,0.7))"
         }}
       >
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", maxWidth: "1200px", margin: "0 auto" }}>
@@ -144,10 +144,6 @@ export function HUD() {
           </div>
         </div>
         
-        {/* Controls hint */}
-        <div style={{ textAlign: "center", marginTop: "15px", fontSize: "12px", color: "#666" }}>
-          Hold W or Arrow Up to accelerate | A/D for minor lane adjustment | C to change camera
-        </div>
       </div>
       
       {/* Camera toggle button */}
