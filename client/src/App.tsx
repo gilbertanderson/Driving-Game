@@ -4,7 +4,7 @@ import { KeyboardControls } from "@react-three/drei";
 import "@fontsource/inter";
 
 import { DragStrip } from "./components/game/DragStrip";
-import { TeslaModelY } from "./components/game/TeslaModelY";
+import { FordMustang } from "./components/game/FordMustang";
 import { OpponentTesla } from "./components/game/OpponentTesla";
 import { RacingCamera } from "./components/game/RacingCamera";
 import { HUD } from "./components/game/HUD";
@@ -115,7 +115,7 @@ function Game() {
           <DragStrip />
           {isRacing && (
             <>
-              <TeslaModelY />
+              <FordMustang />
               <OpponentTesla />
               <TireSmoke />
             </>
