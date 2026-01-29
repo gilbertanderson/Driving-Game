@@ -1,165 +1,161 @@
-import { useCallback } from "react";
 import { useRacing } from "@/lib/stores/useRacing";
 
 export function HUD() {
-  const {
-    phase,
-    speed,
-    currentLap,
-    totalLaps,
-    currentLapTime,
-    bestLapTime,
+  const { 
+    phase, 
+    speed, 
+    reactionTime, 
+    elapsedTime, 
+    trapSpeed,
+    position,
+    opponentPosition,
+    trackLength,
     cameraMode,
     toggleCamera
   } = useRacing();
-
-  const formatTime = useCallback((ms: number) => {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    const milliseconds = Math.floor((ms % 1000) / 10);
-    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}.${milliseconds.toString().padStart(2, "0")}`;
-  }, []);
-
-  if (phase !== "racing") return null;
-
+  
+  if (phase === "menu" || phase === "finished") return null;
+  
+  const playerProgress = Math.min((position.z / trackLength) * 100, 100);
+  const opponentProgress = Math.min((opponentPosition.z / trackLength) * 100, 100);
+  
   return (
     <div
       style={{
-        position: "absolute",
+        position: "fixed",
         top: 0,
         left: 0,
         right: 0,
         bottom: 0,
         pointerEvents: "none",
-        fontFamily: "'Rajdhani', 'Orbitron', 'Roboto', sans-serif",
-        zIndex: 100
+        fontFamily: "'Rajdhani', 'Roboto', sans-serif",
+        zIndex: 50
       }}
     >
+      {/* Bottom HUD */}
       <div
         style={{
           position: "absolute",
-          bottom: 30,
-          right: 30,
-          display: "flex",
-          flexDirection: "column",
-          alignItems: "flex-end",
-          gap: 10,
-          pointerEvents: "auto"
+          bottom: 0,
+          left: 0,
+          right: 0,
+          padding: "20px",
+          background: "linear-gradient(transparent, rgba(0,0,0,0.8))"
         }}
       >
-        <div
-          style={{
-            background: "rgba(26, 26, 26, 0.9)",
-            borderRadius: 15,
-            padding: "20px 30px",
-            border: "2px solid #00D4FF",
-            minWidth: 200
-          }}
-        >
-          <div style={{ color: "#666", fontSize: 12, textTransform: "uppercase", letterSpacing: 2 }}>
-            Speed
-          </div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
-            <span style={{ color: "#FFFFFF", fontSize: 48, fontWeight: 700 }}>
+        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-end", maxWidth: "1200px", margin: "0 auto" }}>
+          {/* Speed display */}
+          <div style={{ textAlign: "center" }}>
+            <div style={{ fontSize: "64px", fontWeight: "bold", lineHeight: 1, color: "#FFFFFF" }}>
               {Math.round(speed)}
-            </span>
-            <span style={{ color: "#00D4FF", fontSize: 18 }}>km/h</span>
+            </div>
+            <div style={{ fontSize: "16px", color: "#888", marginTop: "-5px" }}>KM/H</div>
           </div>
           
-          <div
-            style={{
-              marginTop: 10,
-              height: 4,
-              background: "#333",
-              borderRadius: 2,
-              overflow: "hidden"
-            }}
-          >
-            <div
-              style={{
-                width: `${Math.min((speed / 200) * 100, 100)}%`,
-                height: "100%",
-                background: speed > 150 ? "#E82127" : "#00D4FF",
-                transition: "width 0.1s ease-out, background 0.3s"
-              }}
-            />
-          </div>
-        </div>
-      </div>
-
-      <div
-        style={{
-          position: "absolute",
-          top: 30,
-          left: 30,
-          display: "flex",
-          flexDirection: "column",
-          gap: 15
-        }}
-      >
-        <div
-          style={{
-            background: "rgba(26, 26, 26, 0.9)",
-            borderRadius: 15,
-            padding: "15px 25px",
-            border: "2px solid #E82127"
-          }}
-        >
-          <div style={{ color: "#666", fontSize: 12, textTransform: "uppercase", letterSpacing: 2 }}>
-            Lap
-          </div>
-          <div style={{ display: "flex", alignItems: "baseline", gap: 5 }}>
-            <span style={{ color: "#FFFFFF", fontSize: 36, fontWeight: 700 }}>
-              {currentLap}
-            </span>
-            <span style={{ color: "#666", fontSize: 24 }}>/</span>
-            <span style={{ color: "#E82127", fontSize: 24 }}>{totalLaps}</span>
-          </div>
-        </div>
-
-        <div
-          style={{
-            background: "rgba(26, 26, 26, 0.9)",
-            borderRadius: 15,
-            padding: "15px 25px",
-            border: "2px solid #393C41"
-          }}
-        >
-          <div style={{ color: "#666", fontSize: 12, textTransform: "uppercase", letterSpacing: 2 }}>
-            Current Lap
-          </div>
-          <div style={{ color: "#FFFFFF", fontSize: 28, fontWeight: 600, fontFamily: "monospace" }}>
-            {formatTime(currentLapTime)}
-          </div>
-        </div>
-
-        {bestLapTime !== null && (
-          <div
-            style={{
-              background: "rgba(26, 26, 26, 0.9)",
-              borderRadius: 15,
-              padding: "15px 25px",
-              border: "2px solid #00D4FF"
-            }}
-          >
-            <div style={{ color: "#00D4FF", fontSize: 12, textTransform: "uppercase", letterSpacing: 2 }}>
-              Best Lap
+          {/* Race progress bar */}
+          <div style={{ flex: 1, margin: "0 40px", maxWidth: "500px" }}>
+            <div style={{ position: "relative", height: "40px", background: "#222", borderRadius: "8px", overflow: "hidden" }}>
+              {/* Track markers */}
+              {[25, 50, 75].map((mark) => (
+                <div
+                  key={mark}
+                  style={{
+                    position: "absolute",
+                    left: `${mark}%`,
+                    top: 0,
+                    bottom: 0,
+                    width: "1px",
+                    background: "#444"
+                  }}
+                />
+              ))}
+              
+              {/* Player progress (top half) */}
+              <div
+                style={{
+                  position: "absolute",
+                  top: "2px",
+                  left: "2px",
+                  height: "16px",
+                  width: `calc(${playerProgress}% - 4px)`,
+                  background: "linear-gradient(90deg, #E82127, #FF4444)",
+                  borderRadius: "4px",
+                  transition: "width 0.1s"
+                }}
+              />
+              
+              {/* Opponent progress (bottom half) */}
+              <div
+                style={{
+                  position: "absolute",
+                  bottom: "2px",
+                  left: "2px",
+                  height: "16px",
+                  width: `calc(${opponentProgress}% - 4px)`,
+                  background: "linear-gradient(90deg, #1a237e, #3949ab)",
+                  borderRadius: "4px",
+                  transition: "width 0.1s"
+                }}
+              />
+              
+              {/* Labels */}
+              <div style={{ position: "absolute", right: "10px", top: "4px", fontSize: "10px", color: "#E82127" }}>YOU</div>
+              <div style={{ position: "absolute", right: "10px", bottom: "4px", fontSize: "10px", color: "#3949ab" }}>OPP</div>
             </div>
-            <div style={{ color: "#00D4FF", fontSize: 24, fontWeight: 600, fontFamily: "monospace" }}>
-              {formatTime(bestLapTime)}
+            
+            <div style={{ display: "flex", justifyContent: "space-between", marginTop: "4px", fontSize: "12px", color: "#666" }}>
+              <span>START</span>
+              <span>1/4 MILE</span>
             </div>
           </div>
-        )}
+          
+          {/* Race stats */}
+          <div style={{ textAlign: "right", minWidth: "150px" }}>
+            {reactionTime !== null && (
+              <div style={{ marginBottom: "8px" }}>
+                <div style={{ fontSize: "12px", color: "#888" }}>REACTION</div>
+                <div style={{ 
+                  fontSize: "24px", 
+                  fontWeight: "bold",
+                  color: reactionTime < 0 ? "#FF0000" : reactionTime < 0.1 ? "#00FF00" : "#FFFFFF"
+                }}>
+                  {reactionTime < 0 ? "FALSE START" : `${reactionTime.toFixed(3)}s`}
+                </div>
+              </div>
+            )}
+            
+            {elapsedTime !== null && (
+              <div>
+                <div style={{ fontSize: "12px", color: "#888" }}>E.T.</div>
+                <div style={{ fontSize: "24px", fontWeight: "bold", color: "#00FF00" }}>
+                  {elapsedTime.toFixed(3)}s
+                </div>
+              </div>
+            )}
+            
+            {trapSpeed !== null && (
+              <div>
+                <div style={{ fontSize: "12px", color: "#888" }}>TRAP SPEED</div>
+                <div style={{ fontSize: "20px", fontWeight: "bold", color: "#FFFFFF" }}>
+                  {Math.round(trapSpeed)} km/h
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+        
+        {/* Controls hint */}
+        <div style={{ textAlign: "center", marginTop: "15px", fontSize: "12px", color: "#666" }}>
+          Hold W or Arrow Up to accelerate | A/D for minor lane adjustment | C to change camera
+        </div>
       </div>
-
+      
+      {/* Camera toggle button */}
       <div
         style={{
           position: "absolute",
           top: 30,
           right: 30,
-          display: "flex",
-          flexDirection: "column",
-          gap: 10,
           pointerEvents: "auto"
         }}
       >
@@ -174,36 +170,11 @@ export function HUD() {
             fontSize: 14,
             cursor: "pointer",
             textTransform: "uppercase",
-            letterSpacing: 1,
-            transition: "border-color 0.2s"
+            letterSpacing: 1
           }}
-          onMouseEnter={(e) => (e.currentTarget.style.borderColor = "#00D4FF")}
-          onMouseLeave={(e) => (e.currentTarget.style.borderColor = "#393C41")}
         >
-          Camera: {cameraMode === "chase" ? "Chase" : "Cockpit"}
+          Camera: {cameraMode === "chase" ? "Chase" : "Side"}
         </button>
-      </div>
-
-      <div
-        style={{
-          position: "absolute",
-          bottom: 30,
-          left: 30,
-          background: "rgba(26, 26, 26, 0.85)",
-          borderRadius: 10,
-          padding: "10px 15px",
-          border: "1px solid #393C41"
-        }}
-      >
-        <div style={{ color: "#666", fontSize: 10, marginBottom: 5, textTransform: "uppercase" }}>
-          Controls
-        </div>
-        <div style={{ display: "flex", gap: 15, color: "#FFFFFF", fontSize: 12 }}>
-          <span><kbd style={{ background: "#393C41", padding: "2px 6px", borderRadius: 3 }}>W</kbd> Accelerate</span>
-          <span><kbd style={{ background: "#393C41", padding: "2px 6px", borderRadius: 3 }}>S</kbd> Brake</span>
-          <span><kbd style={{ background: "#393C41", padding: "2px 6px", borderRadius: 3 }}>A</kbd><kbd style={{ background: "#393C41", padding: "2px 6px", borderRadius: 3, marginLeft: 2 }}>D</kbd> Steer</span>
-          <span><kbd style={{ background: "#393C41", padding: "2px 6px", borderRadius: 3 }}>C</kbd> Camera</span>
-        </div>
       </div>
     </div>
   );

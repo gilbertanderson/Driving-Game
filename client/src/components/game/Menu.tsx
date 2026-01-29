@@ -1,16 +1,20 @@
 import { useRacing } from "@/lib/stores/useRacing";
 
 export function Menu() {
-  const { phase, startRace, resetRace, lapTimes, bestLapTime } = useRacing();
+  const { 
+    phase, 
+    startStaging, 
+    resetRace, 
+    winner,
+    reactionTime,
+    elapsedTime,
+    trapSpeed,
+    opponentReactionTime,
+    opponentElapsedTime,
+    opponentTrapSpeed
+  } = useRacing();
 
-  const formatTime = (ms: number) => {
-    const minutes = Math.floor(ms / 60000);
-    const seconds = Math.floor((ms % 60000) / 1000);
-    const milliseconds = Math.floor((ms % 1000) / 10);
-    return `${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}.${milliseconds.toString().padStart(2, "0")}`;
-  };
-
-  if (phase === "racing") return null;
+  if (phase === "staging" || phase === "countdown" || phase === "racing") return null;
 
   return (
     <div
@@ -35,7 +39,7 @@ export function Menu() {
           background: "rgba(26, 26, 26, 0.95)",
           borderRadius: 20,
           border: "3px solid #E82127",
-          maxWidth: 500
+          maxWidth: 600
         }}
       >
         <div
@@ -47,7 +51,7 @@ export function Menu() {
             textTransform: "uppercase"
           }}
         >
-          Tesla Racing Experience
+          Tesla Drag Racing
         </div>
         
         <h1
@@ -60,7 +64,7 @@ export function Menu() {
             letterSpacing: 3
           }}
         >
-          Model Y
+          1/4 Mile
         </h1>
         
         <div
@@ -70,10 +74,10 @@ export function Menu() {
             marginBottom: 40
           }}
         >
-          Track Day Challenge
+          Model Y vs Model Y
         </div>
 
-        {phase === "finished" && lapTimes.length > 0 && (
+        {phase === "finished" && (
           <div
             style={{
               marginBottom: 30,
@@ -83,48 +87,114 @@ export function Menu() {
               border: "1px solid #393C41"
             }}
           >
-            <div style={{ color: "#00D4FF", fontSize: 18, marginBottom: 15, textTransform: "uppercase" }}>
-              Race Complete!
+            <div 
+              style={{ 
+                color: winner === "player" ? "#00FF00" : "#FF4444", 
+                fontSize: 28, 
+                marginBottom: 20, 
+                textTransform: "uppercase",
+                fontWeight: "bold"
+              }}
+            >
+              {winner === "player" ? "You Win!" : "You Lose!"}
             </div>
             
-            <div style={{ marginBottom: 15 }}>
-              {lapTimes.map((lap, index) => (
-                <div
-                  key={index}
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    padding: "8px 0",
-                    borderBottom: "1px solid #333",
-                    color: lap.time === bestLapTime ? "#00D4FF" : "#FFFFFF"
-                  }}
-                >
-                  <span>Lap {lap.lapNumber}</span>
-                  <span style={{ fontFamily: "monospace" }}>{formatTime(lap.time)}</span>
-                </div>
-              ))}
-            </div>
-            
-            {bestLapTime !== null && (
-              <div
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  padding: "12px 0",
-                  color: "#00D4FF",
-                  fontSize: 18,
-                  fontWeight: 600
-                }}
-              >
-                <span>Best Lap</span>
-                <span style={{ fontFamily: "monospace" }}>{formatTime(bestLapTime)}</span>
+            {/* Results comparison */}
+            <div style={{ display: "flex", gap: "30px", justifyContent: "center" }}>
+              {/* Player stats */}
+              <div style={{ textAlign: "center", minWidth: "150px" }}>
+                <div style={{ color: "#E82127", fontSize: "14px", marginBottom: "10px", fontWeight: "bold" }}>YOUR CAR</div>
+                
+                {reactionTime !== null && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <div style={{ color: "#888", fontSize: "11px" }}>REACTION</div>
+                    <div style={{ 
+                      color: reactionTime < 0 ? "#FF0000" : "#FFFFFF", 
+                      fontSize: "18px",
+                      fontFamily: "monospace"
+                    }}>
+                      {reactionTime < 0 ? "FALSE START" : `${reactionTime.toFixed(3)}s`}
+                    </div>
+                  </div>
+                )}
+                
+                {elapsedTime !== null && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <div style={{ color: "#888", fontSize: "11px" }}>E.T.</div>
+                    <div style={{ 
+                      color: winner === "player" ? "#00FF00" : "#FFFFFF", 
+                      fontSize: "24px",
+                      fontWeight: "bold",
+                      fontFamily: "monospace"
+                    }}>
+                      {elapsedTime.toFixed(3)}s
+                    </div>
+                  </div>
+                )}
+                
+                {trapSpeed !== null && (
+                  <div>
+                    <div style={{ color: "#888", fontSize: "11px" }}>TRAP SPEED</div>
+                    <div style={{ color: "#FFFFFF", fontSize: "16px", fontFamily: "monospace" }}>
+                      {Math.round(trapSpeed)} km/h
+                    </div>
+                  </div>
+                )}
               </div>
-            )}
+              
+              {/* VS divider */}
+              <div style={{ 
+                display: "flex", 
+                alignItems: "center", 
+                color: "#666", 
+                fontSize: "20px",
+                fontWeight: "bold"
+              }}>
+                VS
+              </div>
+              
+              {/* Opponent stats */}
+              <div style={{ textAlign: "center", minWidth: "150px" }}>
+                <div style={{ color: "#3949ab", fontSize: "14px", marginBottom: "10px", fontWeight: "bold" }}>OPPONENT</div>
+                
+                {opponentReactionTime !== null && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <div style={{ color: "#888", fontSize: "11px" }}>REACTION</div>
+                    <div style={{ color: "#FFFFFF", fontSize: "18px", fontFamily: "monospace" }}>
+                      {opponentReactionTime.toFixed(3)}s
+                    </div>
+                  </div>
+                )}
+                
+                {opponentElapsedTime !== null && (
+                  <div style={{ marginBottom: "8px" }}>
+                    <div style={{ color: "#888", fontSize: "11px" }}>E.T.</div>
+                    <div style={{ 
+                      color: winner === "opponent" ? "#00FF00" : "#FFFFFF", 
+                      fontSize: "24px",
+                      fontWeight: "bold",
+                      fontFamily: "monospace"
+                    }}>
+                      {opponentElapsedTime.toFixed(3)}s
+                    </div>
+                  </div>
+                )}
+                
+                {opponentTrapSpeed !== null && (
+                  <div>
+                    <div style={{ color: "#888", fontSize: "11px" }}>TRAP SPEED</div>
+                    <div style={{ color: "#FFFFFF", fontSize: "16px", fontFamily: "monospace" }}>
+                      {Math.round(opponentTrapSpeed)} km/h
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
           </div>
         )}
 
         <button
-          onClick={phase === "finished" ? resetRace : startRace}
+          onClick={phase === "finished" ? startStaging : startStaging}
           style={{
             background: "linear-gradient(180deg, #E82127 0%, #B81A1F 100%)",
             border: "none",
@@ -148,14 +218,12 @@ export function Menu() {
             e.currentTarget.style.boxShadow = "0 4px 20px rgba(232, 33, 39, 0.4)";
           }}
         >
-          {phase === "finished" ? "Race Again" : "Start Race"}
+          {phase === "finished" ? "Race Again" : "Start Drag Race"}
         </button>
 
         {phase === "finished" && (
           <button
-            onClick={() => {
-              resetRace();
-            }}
+            onClick={resetRace}
             style={{
               background: "transparent",
               border: "2px solid #393C41",
@@ -184,9 +252,9 @@ export function Menu() {
             fontSize: 12
           }}
         >
-          <p>Use <strong>W/S</strong> to accelerate/brake</p>
-          <p>Use <strong>A/D</strong> to steer</p>
-          <p>Press <strong>C</strong> to change camera</p>
+          <p>Hold <strong>W</strong> to accelerate when the light turns green</p>
+          <p>React quickly for a faster start!</p>
+          <p>Press <strong>C</strong> to change camera view</p>
         </div>
       </div>
     </div>

@@ -3,17 +3,16 @@ import { Suspense, useEffect } from "react";
 import { KeyboardControls } from "@react-three/drei";
 import "@fontsource/inter";
 
-import { Track } from "./components/game/Track";
+import { DragStrip } from "./components/game/DragStrip";
 import { TeslaModelY } from "./components/game/TeslaModelY";
+import { OpponentTesla } from "./components/game/OpponentTesla";
 import { RacingCamera } from "./components/game/RacingCamera";
 import { HUD } from "./components/game/HUD";
 import { Menu } from "./components/game/Menu";
 import { Environment } from "./components/game/Environment";
-import { LapDetector } from "./components/game/LapDetector";
+import { ChristmasTree } from "./components/game/ChristmasTree";
 import { PostProcessing } from "./components/game/PostProcessing";
 import { TireSmoke } from "./components/game/TireSmoke";
-import { Countdown } from "./components/game/Countdown";
-import { SpeedBoostZones } from "./components/game/SpeedBoostZones";
 import { EngineSound } from "./components/game/EngineSound";
 import { useRacing } from "./lib/stores/useRacing";
 
@@ -38,7 +37,7 @@ function CameraToggleHandler() {
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.code === "KeyC" && phase === "racing") {
+      if (event.code === "KeyC" && (phase === "racing" || phase === "staging" || phase === "countdown")) {
         toggleCamera();
       }
     };
@@ -84,7 +83,7 @@ function LoadingScreen() {
         <style>
           {`@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }`}
         </style>
-        Loading Tesla Racing...
+        Loading Tesla Drag Racing...
       </div>
     </div>
   );
@@ -92,13 +91,14 @@ function LoadingScreen() {
 
 function Game() {
   const { phase } = useRacing();
+  const isRacing = phase === "staging" || phase === "countdown" || phase === "racing";
 
   return (
     <>
       <Canvas
         shadows
         camera={{
-          position: [30, 20, 30],
+          position: [0, 15, -25],
           fov: 60,
           near: 0.1,
           far: 1000
@@ -111,12 +111,11 @@ function Game() {
       >
         <Suspense fallback={null}>
           <Environment />
-          <Track />
-          <SpeedBoostZones />
-          {phase === "racing" && (
+          <DragStrip />
+          {isRacing && (
             <>
               <TeslaModelY />
-              <LapDetector />
+              <OpponentTesla />
               <TireSmoke />
             </>
           )}
@@ -127,7 +126,7 @@ function Game() {
 
       <HUD />
       <Menu />
-      <Countdown />
+      <ChristmasTree />
       <EngineSound />
       <CameraToggleHandler />
     </>

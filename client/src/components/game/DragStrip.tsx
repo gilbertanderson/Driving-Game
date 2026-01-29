@@ -1,0 +1,125 @@
+import { useTexture } from "@react-three/drei";
+import * as THREE from "three";
+import { useMemo } from "react";
+
+export function DragStrip() {
+  const asphaltTexture = useTexture("/textures/asphalt.png");
+  const grassTexture = useTexture("/textures/grass.png");
+  
+  useMemo(() => {
+    asphaltTexture.wrapS = asphaltTexture.wrapT = THREE.RepeatWrapping;
+    asphaltTexture.repeat.set(2, 50);
+    grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
+    grassTexture.repeat.set(20, 100);
+  }, [asphaltTexture, grassTexture]);
+
+  const trackLength = 450; // Slightly longer than quarter mile for runoff
+  const trackWidth = 15;
+  const laneWidth = 6;
+  
+  return (
+    <group>
+      {/* Main asphalt strip */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, trackLength / 2]} receiveShadow>
+        <planeGeometry args={[trackWidth, trackLength]} />
+        <meshStandardMaterial map={asphaltTexture} roughness={0.8} />
+      </mesh>
+      
+      {/* Grass on both sides */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-40, 0, trackLength / 2]} receiveShadow>
+        <planeGeometry args={[60, trackLength + 100]} />
+        <meshStandardMaterial map={grassTexture} roughness={1} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[40, 0, trackLength / 2]} receiveShadow>
+        <planeGeometry args={[60, trackLength + 100]} />
+        <meshStandardMaterial map={grassTexture} roughness={1} />
+      </mesh>
+      
+      {/* Center lane divider - dashed white line */}
+      {Array.from({ length: 45 }).map((_, i) => (
+        <mesh 
+          key={`divider-${i}`}
+          rotation={[-Math.PI / 2, 0, 0]} 
+          position={[0, 0.02, i * 10 + 5]}
+        >
+          <planeGeometry args={[0.15, 4]} />
+          <meshStandardMaterial color="#FFFFFF" />
+        </mesh>
+      ))}
+      
+      {/* Outer lane markers - solid yellow lines */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-laneWidth, 0.02, trackLength / 2]}>
+        <planeGeometry args={[0.15, trackLength]} />
+        <meshStandardMaterial color="#FFCC00" />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[laneWidth, 0.02, trackLength / 2]}>
+        <planeGeometry args={[0.15, trackLength]} />
+        <meshStandardMaterial color="#FFCC00" />
+      </mesh>
+      
+      {/* Start line */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 5]}>
+        <planeGeometry args={[trackWidth, 0.5]} />
+        <meshStandardMaterial color="#FFFFFF" />
+      </mesh>
+      
+      {/* Finish line at 402m (quarter mile) */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 402]}>
+        <planeGeometry args={[trackWidth, 1]} />
+        <meshStandardMaterial color="#FFFFFF" />
+      </mesh>
+      
+      {/* Checkered finish pattern */}
+      {Array.from({ length: 8 }).map((_, i) => (
+        <mesh 
+          key={`checker-${i}`}
+          rotation={[-Math.PI / 2, 0, 0]} 
+          position={[(i - 3.5) * 1.8, 0.025, 402]}
+        >
+          <planeGeometry args={[0.8, 0.8]} />
+          <meshStandardMaterial color={i % 2 === 0 ? "#000000" : "#FFFFFF"} />
+        </mesh>
+      ))}
+      
+      {/* Staging area markers - two beams at start */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, -2]}>
+        <planeGeometry args={[trackWidth, 0.3]} />
+        <meshStandardMaterial color="#FFCC00" />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.02, 0]}>
+        <planeGeometry args={[trackWidth, 0.3]} />
+        <meshStandardMaterial color="#FFCC00" />
+      </mesh>
+      
+      {/* Barriers on sides */}
+      <mesh position={[-trackWidth / 2 - 0.5, 0.5, trackLength / 2]}>
+        <boxGeometry args={[0.5, 1, trackLength]} />
+        <meshStandardMaterial color="#CC0000" />
+      </mesh>
+      <mesh position={[trackWidth / 2 + 0.5, 0.5, trackLength / 2]}>
+        <boxGeometry args={[0.5, 1, trackLength]} />
+        <meshStandardMaterial color="#CC0000" />
+      </mesh>
+      
+      {/* Distance markers every 100m */}
+      {[100, 200, 300, 400].map((distance) => (
+        <group key={`marker-${distance}`}>
+          <mesh position={[-trackWidth / 2 - 2, 1.5, distance]}>
+            <boxGeometry args={[2, 3, 0.1]} />
+            <meshStandardMaterial color="#222222" />
+          </mesh>
+          <mesh position={[trackWidth / 2 + 2, 1.5, distance]}>
+            <boxGeometry args={[2, 3, 0.1]} />
+            <meshStandardMaterial color="#222222" />
+          </mesh>
+        </group>
+      ))}
+      
+      {/* Christmas tree tower in center */}
+      <mesh position={[0, 5, -5]}>
+        <boxGeometry args={[1, 10, 1]} />
+        <meshStandardMaterial color="#333333" />
+      </mesh>
+    </group>
+  );
+}

@@ -5,65 +5,72 @@ import { useRacing } from "@/lib/stores/useRacing";
 
 export function RacingCamera() {
   const { camera } = useThree();
-  const { position, rotation, cameraMode, phase } = useRacing();
+  const { position, cameraMode, phase, opponentPosition } = useRacing();
   
-  const targetPosition = useRef(new THREE.Vector3(0, 5, 15));
-  const targetLookAt = useRef(new THREE.Vector3(0, 0, 0));
-  const smoothPosition = useRef(new THREE.Vector3(0, 5, 15));
+  const smoothPosition = useRef(new THREE.Vector3(0, 10, -20));
+  const smoothLookAt = useRef(new THREE.Vector3(0, 0, 50));
   
   useFrame((_, delta) => {
-    if (phase !== "racing") return;
+    if (phase !== "staging" && phase !== "countdown" && phase !== "racing") return;
     
     const clampedDelta = Math.min(delta, 0.05);
     const vehiclePos = new THREE.Vector3(position.x, position.y, position.z);
     
+    let targetPosition: THREE.Vector3;
+    let targetLookAt: THREE.Vector3;
+    
     if (cameraMode === "chase") {
-      const cameraDistance = 12;
-      const cameraHeight = 5;
-      const lookAheadDistance = 8;
-      
-      const behindOffset = new THREE.Vector3(
-        -Math.sin(rotation) * cameraDistance,
-        cameraHeight,
-        -Math.cos(rotation) * cameraDistance
+      // Behind and above the player car
+      targetPosition = new THREE.Vector3(
+        vehiclePos.x - 3, // Offset to see both cars
+        6,
+        vehiclePos.z - 15
       );
       
-      targetPosition.current.copy(vehiclePos).add(behindOffset);
-      
-      const lookAhead = new THREE.Vector3(
-        Math.sin(rotation) * lookAheadDistance,
+      // Look ahead of the car
+      targetLookAt = new THREE.Vector3(
+        0, // Center between lanes
         1,
-        Math.cos(rotation) * lookAheadDistance
+        vehiclePos.z + 30
       );
-      targetLookAt.current.copy(vehiclePos).add(lookAhead);
     } else {
-      const cockpitOffset = new THREE.Vector3(
-        Math.sin(rotation) * 0.5,
-        1.5,
-        Math.cos(rotation) * 0.5
+      // Side view - positioned to the side of the track
+      const midZ = (vehiclePos.z + opponentPosition.z) / 2;
+      
+      targetPosition = new THREE.Vector3(
+        -25, // Far to the side
+        5,
+        midZ
       );
       
-      targetPosition.current.copy(vehiclePos).add(cockpitOffset);
-      
-      const lookForward = new THREE.Vector3(
-        Math.sin(rotation) * 10,
+      // Look at the midpoint between cars
+      targetLookAt = new THREE.Vector3(
+        0,
         1,
-        Math.cos(rotation) * 10
+        midZ + 10
       );
-      targetLookAt.current.copy(vehiclePos).add(lookForward);
     }
     
-    const smoothFactor = cameraMode === "chase" ? 5 : 10;
-    smoothPosition.current.lerp(targetPosition.current, clampedDelta * smoothFactor);
+    // Smooth camera movement
+    const smoothFactor = 5;
+    smoothPosition.current.lerp(targetPosition, clampedDelta * smoothFactor);
+    smoothLookAt.current.lerp(targetLookAt, clampedDelta * smoothFactor);
     
     camera.position.copy(smoothPosition.current);
-    camera.lookAt(targetLookAt.current);
+    camera.lookAt(smoothLookAt.current);
   });
 
   useEffect(() => {
-    if (phase === "menu") {
-      camera.position.set(30, 20, 30);
-      camera.lookAt(0, 0, -55);
+    if (phase === "menu" || phase === "finished") {
+      // Overview camera for menu
+      camera.position.set(0, 15, -25);
+      camera.lookAt(0, 0, 50);
+    } else if (phase === "staging") {
+      // Reset camera for staging
+      smoothPosition.current.set(-3, 6, -15);
+      smoothLookAt.current.set(0, 1, 30);
+      camera.position.copy(smoothPosition.current);
+      camera.lookAt(smoothLookAt.current);
     }
   }, [phase, camera]);
 

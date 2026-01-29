@@ -1,9 +1,8 @@
-import { useRef, useEffect, useState } from "react";
+import { useRef, useEffect } from "react";
 import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF, useKeyboardControls } from "@react-three/drei";
 import { useRacing } from "@/lib/stores/useRacing";
-import { checkBoostZone } from "@/lib/boostZones";
 
 interface VehicleProps {
   onPositionUpdate?: (position: THREE.Vector3, rotation: number) => void;
@@ -13,121 +12,111 @@ export function TeslaModelY({ onPositionUpdate }: VehicleProps) {
   const groupRef = useRef<THREE.Group>(null);
   const { scene } = useGLTF("/models/tesla-model-y.glb");
   
-  const { phase, updateVehicle } = useRacing();
+  const { 
+    phase, 
+    updateVehicle, 
+    playerLaunch, 
+    greenLightTime,
+    playerLaunchTime,
+    setPlayerFinished,
+    trackLength,
+    elapsedTime
+  } = useRacing();
   
   const [, getKeys] = useKeyboardControls();
   
   const vehicleState = useRef({
-    position: new THREE.Vector3(0, 0.5, 5),
+    position: new THREE.Vector3(-3, 0.5, 0),
     velocity: new THREE.Vector3(0, 0, 0),
-    rotation: Math.PI,
-    angularVelocity: 0,
-    acceleration: 0,
-    braking: false,
+    rotation: 0,
     wheelRotation: 0,
-    steeringAngle: 0
-  });
-
-  const boostState = useRef({
-    active: false,
-    timer: 0,
-    cooldown: 0
+    hasLaunched: false,
+    startTime: 0,
+    finished: false
   });
 
   const config = {
-    maxSpeed: 55,
-    acceleration: 25,
-    brakeForce: 40,
-    friction: 0.98,
-    turnSpeed: 2.5,
-    maxTurnAngle: 0.6,
-    turnFriction: 0.95,
-    groundHeight: 0.5,
-    boostMultiplier: 1.5,
-    boostDuration: 2
+    maxSpeed: 65, // m/s (~234 km/h) - slightly faster than opponent
+    acceleration: 14, // Tesla Model Y Performance
+    groundHeight: 0.5
   };
 
+  useEffect(() => {
+    if (phase === "staging") {
+      vehicleState.current = {
+        position: new THREE.Vector3(-3, 0.5, 0),
+        velocity: new THREE.Vector3(0, 0, 0),
+        rotation: 0,
+        wheelRotation: 0,
+        hasLaunched: false,
+        startTime: 0,
+        finished: false
+      };
+      if (groupRef.current) {
+        groupRef.current.position.set(-3, 0.5, 0);
+        groupRef.current.rotation.y = 0;
+      }
+    }
+  }, [phase]);
+
   useFrame((_, delta) => {
-    if (phase !== "racing" || !groupRef.current) return;
+    if (!groupRef.current) return;
     
     const keys = getKeys();
     const state = vehicleState.current;
-    
     const clampedDelta = Math.min(delta, 0.05);
     
-    let accelerationInput = 0;
-    if (keys.forward) accelerationInput = 1;
-    if (keys.backward) accelerationInput = -0.5;
-    
-    let steeringInput = 0;
-    if (keys.left) steeringInput = 1;
-    if (keys.right) steeringInput = -1;
-    
-    const speed = state.velocity.length();
-    const speedRatio = Math.min(speed / config.maxSpeed, 1);
-    
-    const boost = boostState.current;
-    if (boost.cooldown > 0) {
-      boost.cooldown -= clampedDelta;
+    // Detect launch attempt
+    if ((phase === "countdown" || phase === "racing") && keys.forward && !state.hasLaunched) {
+      playerLaunch();
+      state.hasLaunched = true;
+      state.startTime = Date.now();
     }
     
-    const inBoostZone = checkBoostZone(state.position.x, state.position.z);
-    
-    if (inBoostZone && !boost.active && boost.cooldown <= 0) {
-      boost.active = true;
-      boost.timer = config.boostDuration;
-    }
-    
-    if (boost.active) {
-      boost.timer -= clampedDelta;
-      if (boost.timer <= 0) {
-        boost.active = false;
-        boost.cooldown = 3;
+    // Only move when racing and green light is on
+    if (phase === "racing" && greenLightTime !== null && playerLaunchTime !== null && !state.finished) {
+      const accelerating = keys.forward;
+      
+      if (accelerating) {
+        // Accelerate in Z direction (forward on drag strip)
+        const currentSpeed = state.velocity.z;
+        if (currentSpeed < config.maxSpeed) {
+          state.velocity.z += config.acceleration * clampedDelta;
+          state.velocity.z = Math.min(state.velocity.z, config.maxSpeed);
+        }
+      } else {
+        // Slight deceleration when not accelerating
+        state.velocity.z *= 0.995;
+      }
+      
+      // Minor steering to stay in lane (very limited for drag racing)
+      const steerAmount = 0.5;
+      if (keys.left) {
+        state.position.x -= steerAmount * clampedDelta;
+      }
+      if (keys.right) {
+        state.position.x += steerAmount * clampedDelta;
+      }
+      
+      // Clamp to left lane
+      state.position.x = Math.max(-6, Math.min(-1, state.position.x));
+      
+      // Move forward
+      state.position.z += state.velocity.z * clampedDelta;
+      state.position.y = config.groundHeight;
+      
+      state.wheelRotation += state.velocity.z * clampedDelta * 2;
+      
+      // Check finish line
+      if (state.position.z >= trackLength && !state.finished && elapsedTime === null) {
+        state.finished = true;
+        const et = (Date.now() - state.startTime) / 1000;
+        const trapSpeed = state.velocity.z * 3.6; // km/h
+        setPlayerFinished(et, trapSpeed);
       }
     }
     
-    const boostMultiplier = boost.active ? config.boostMultiplier : 1;
-    
-    if (accelerationInput !== 0) {
-      const force = accelerationInput * config.acceleration * boostMultiplier * clampedDelta;
-      const direction = new THREE.Vector3(
-        Math.sin(state.rotation),
-        0,
-        Math.cos(state.rotation)
-      );
-      state.velocity.add(direction.multiplyScalar(force));
-    }
-    
-    if (keys.backward && speed > 0.1) {
-      state.velocity.multiplyScalar(1 - config.brakeForce * clampedDelta * 0.1);
-    }
-    
-    state.velocity.multiplyScalar(config.friction);
-    
-    const effectiveMaxSpeed = config.maxSpeed * boostMultiplier;
-    const currentSpeed = state.velocity.length();
-    if (currentSpeed > effectiveMaxSpeed) {
-      state.velocity.normalize().multiplyScalar(effectiveMaxSpeed);
-    }
-    
-    if (steeringInput !== 0 && speed > 0.5) {
-      const turnMultiplier = 1 - speedRatio * 0.5;
-      state.rotation += steeringInput * config.turnSpeed * turnMultiplier * clampedDelta;
-      
-      state.steeringAngle = THREE.MathUtils.lerp(
-        state.steeringAngle,
-        steeringInput * config.maxTurnAngle,
-        0.2
-      );
-    } else {
-      state.steeringAngle = THREE.MathUtils.lerp(state.steeringAngle, 0, 0.1);
-    }
-    
-    state.position.add(state.velocity.clone().multiplyScalar(clampedDelta));
-    state.position.y = config.groundHeight;
-    
-    state.wheelRotation += speed * clampedDelta * 2;
-    
+    // Update visual position
     groupRef.current.position.copy(state.position);
     groupRef.current.rotation.y = state.rotation;
     
@@ -142,25 +131,6 @@ export function TeslaModelY({ onPositionUpdate }: VehicleProps) {
     }
   });
 
-  useEffect(() => {
-    if (phase === "racing") {
-      vehicleState.current = {
-        position: new THREE.Vector3(0, 0.5, 5),
-        velocity: new THREE.Vector3(0, 0, 0),
-        rotation: Math.PI,
-        angularVelocity: 0,
-        acceleration: 0,
-        braking: false,
-        wheelRotation: 0,
-        steeringAngle: 0
-      };
-      if (groupRef.current) {
-        groupRef.current.position.set(0, 0.5, 5);
-        groupRef.current.rotation.y = Math.PI;
-      }
-    }
-  }, [phase]);
-
   const clonedScene = scene.clone();
   clonedScene.traverse((child) => {
     if (child instanceof THREE.Mesh) {
@@ -170,7 +140,7 @@ export function TeslaModelY({ onPositionUpdate }: VehicleProps) {
   });
 
   return (
-    <group ref={groupRef} position={[0, 0.5, 5]} rotation={[0, Math.PI, 0]}>
+    <group ref={groupRef} position={[-3, 0.5, 0]} rotation={[0, 0, 0]}>
       <primitive object={clonedScene} scale={2.5} />
       
       <pointLight
