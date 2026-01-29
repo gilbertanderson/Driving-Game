@@ -142,7 +142,7 @@ export function FordMustang({ onPositionUpdate }: VehicleProps) {
 
   return (
     <group ref={groupRef} position={[-3, 0.15, 0]} rotation={[0, 0, 0]}>
-      <primitive object={clonedScene} scale={2.5} rotation={[0, -Math.PI / 2, 0]} />
+      <primitive object={clonedScene} scale={2.5} rotation={[0, 0, 0]} />
       
       {/* Chrome trim accents */}
       <mesh position={[0, 0.35, 2.3]} castShadow>

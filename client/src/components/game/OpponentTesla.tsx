@@ -119,7 +119,7 @@ export function OpponentTesla() {
 
   return (
     <group ref={groupRef} position={[3, 0.15, 0]} rotation={[0, 0, 0]}>
-      <primitive object={clonedScene} scale={2.5} rotation={[0, Math.PI, 0]} />
+      <primitive object={clonedScene} scale={2.5} rotation={[0, 0, 0]} />
       
       {/* Headlights - front of car (positive Z direction) */}
       <pointLight
