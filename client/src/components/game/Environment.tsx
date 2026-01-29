@@ -65,13 +65,17 @@ function Scenery() {
       return x - Math.floor(x);
     };
     
-    for (let i = 0; i < 60; i++) {
-      const angle = seededRandom(i) * Math.PI * 2;
-      const distance = 80 + seededRandom(i + 100) * 100;
+    for (let i = 0; i < 80; i++) {
+      const side = i % 2 === 0 ? -1 : 1;
+      const xOffset = 25 + seededRandom(i + 100) * 40;
+      const x = side * xOffset;
+      const z = seededRandom(i) * 450;
+      
+      if (Math.abs(x) < 15) continue;
       
       positions.push({
-        x: Math.cos(angle) * distance + 25,
-        z: Math.sin(angle) * distance - 55,
+        x,
+        z,
         scale: 1 + seededRandom(i + 200) * 0.5,
         rotation: seededRandom(i + 300) * Math.PI * 2
       });
