@@ -33,7 +33,7 @@ export function RacingCamera() {
         1,
         vehiclePos.z + 30
       );
-    } else {
+    } else if (cameraMode === "side") {
       // Side view - positioned to the side of the track
       const midZ = (vehiclePos.z + opponentPosition.z) / 2;
       
@@ -48,6 +48,22 @@ export function RacingCamera() {
         0,
         1,
         midZ + 10
+      );
+    } else {
+      // Aerial view - directly above looking down
+      const midZ = (vehiclePos.z + opponentPosition.z) / 2;
+      
+      targetPosition = new THREE.Vector3(
+        0,
+        40, // High above
+        midZ
+      );
+      
+      // Look straight down at the cars
+      targetLookAt = new THREE.Vector3(
+        0,
+        0,
+        midZ + 5
       );
     }
     

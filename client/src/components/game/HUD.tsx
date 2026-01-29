@@ -169,7 +169,7 @@ export function HUD() {
             letterSpacing: 1
           }}
         >
-          Camera: {cameraMode === "chase" ? "Chase" : "Side"}
+          Camera: {cameraMode === "chase" ? "Chase" : cameraMode === "side" ? "Side" : "Aerial"}
         </button>
       </div>
     </div>

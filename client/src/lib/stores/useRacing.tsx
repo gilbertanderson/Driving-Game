@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { subscribeWithSelector } from "zustand/middleware";
 
 export type GamePhase = "menu" | "staging" | "countdown" | "racing" | "finished";
-export type CameraMode = "chase" | "side";
+export type CameraMode = "chase" | "side" | "aerial";
 
 interface DragRaceState {
   phase: GamePhase;
@@ -267,7 +267,10 @@ export const useRacing = create<DragRaceState>()(
     
     toggleCamera: () => {
       const { cameraMode } = get();
-      set({ cameraMode: cameraMode === "chase" ? "side" : "chase" });
+      const modes: CameraMode[] = ["chase", "side", "aerial"];
+      const currentIndex = modes.indexOf(cameraMode);
+      const nextIndex = (currentIndex + 1) % modes.length;
+      set({ cameraMode: modes[nextIndex] });
     },
     
     setCameraMode: (mode: CameraMode) => {
