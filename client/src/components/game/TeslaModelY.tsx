@@ -136,6 +136,14 @@ export function TeslaModelY({ onPositionUpdate }: VehicleProps) {
     if (child instanceof THREE.Mesh) {
       child.castShadow = true;
       child.receiveShadow = true;
+      // Make player Tesla blue
+      if (child.material) {
+        const material = (child.material as THREE.MeshStandardMaterial).clone();
+        if (material.color) {
+          material.color.setHex(0x1a237e); // Dark blue
+        }
+        child.material = material;
+      }
     }
   });
 
