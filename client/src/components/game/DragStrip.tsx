@@ -143,11 +143,6 @@ export function DragStrip() {
         </group>
       ))}
       
-      {/* Christmas tree tower in center */}
-      <mesh position={[0, 5, -5]}>
-        <boxGeometry args={[1, 10, 1]} />
-        <meshStandardMaterial color="#333333" />
-      </mesh>
     </group>
   );
 }
