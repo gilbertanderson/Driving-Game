@@ -66,17 +66,16 @@ export function ChristmasTree() {
     <div
       style={{
         position: "fixed",
-        top: "50%",
-        left: "50%",
-        transform: "translate(-50%, -50%)",
+        top: "20px",
+        left: "20px",
         display: "flex",
         flexDirection: "column",
         alignItems: "center",
-        gap: "8px",
-        padding: "20px",
-        background: "rgba(0, 0, 0, 0.8)",
-        borderRadius: "12px",
-        border: "3px solid #444",
+        gap: "6px",
+        padding: "15px",
+        background: "rgba(0, 0, 0, 0.85)",
+        borderRadius: "10px",
+        border: "2px solid #444",
         zIndex: 100
       }}
     >
