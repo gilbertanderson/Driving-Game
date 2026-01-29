@@ -111,17 +111,35 @@ export function DragStrip() {
         <meshStandardMaterial color="#FFCC00" />
       </mesh>
       
-      {/* Distance markers every 100m */}
-      {[100, 200, 300, 400].map((distance) => (
-        <group key={`marker-${distance}`}>
-          <mesh position={[-trackWidth / 2 - sandWidth - 1, 1.5, distance]}>
-            <boxGeometry args={[2, 3, 0.1]} />
-            <meshStandardMaterial color="#222222" />
-          </mesh>
-          <mesh position={[trackWidth / 2 + sandWidth + 1, 1.5, distance]}>
-            <boxGeometry args={[2, 3, 0.1]} />
-            <meshStandardMaterial color="#222222" />
-          </mesh>
+      {/* Rock formations along the track */}
+      {[50, 120, 200, 280, 350, 420].map((distance, idx) => (
+        <group key={`rocks-${distance}`}>
+          {/* Left side rocks */}
+          <group position={[-trackWidth / 2 - sandWidth - 3, 0, distance]}>
+            <mesh position={[0, 1.2, 0]} rotation={[0.2, idx * 0.5, 0.1]} castShadow>
+              <dodecahedronGeometry args={[1.5 + (idx % 3) * 0.3, 0]} />
+              <meshStandardMaterial color="#8B7355" roughness={0.9} />
+            </mesh>
+            <mesh position={[1.5, 0.8, 0.5]} rotation={[0.3, idx * 0.7, -0.1]} castShadow>
+              <dodecahedronGeometry args={[1 + (idx % 2) * 0.2, 0]} />
+              <meshStandardMaterial color="#9C8A6E" roughness={0.9} />
+            </mesh>
+            <mesh position={[-0.8, 0.5, -0.3]} rotation={[-0.1, idx * 0.3, 0.2]} castShadow>
+              <icosahedronGeometry args={[0.7, 0]} />
+              <meshStandardMaterial color="#7A6B5A" roughness={0.95} />
+            </mesh>
+          </group>
+          {/* Right side rocks */}
+          <group position={[trackWidth / 2 + sandWidth + 3, 0, distance + 15]}>
+            <mesh position={[0, 1, 0]} rotation={[-0.15, idx * 0.4, 0.2]} castShadow>
+              <dodecahedronGeometry args={[1.3 + (idx % 2) * 0.4, 0]} />
+              <meshStandardMaterial color="#8B7355" roughness={0.9} />
+            </mesh>
+            <mesh position={[-1.2, 0.6, 0.4]} rotation={[0.1, idx * 0.6, -0.15]} castShadow>
+              <icosahedronGeometry args={[0.9, 0]} />
+              <meshStandardMaterial color="#9C8A6E" roughness={0.9} />
+            </mesh>
+          </group>
         </group>
       ))}
       
