@@ -36,8 +36,8 @@ export function FordMustang({ onPositionUpdate }: VehicleProps) {
   });
 
   const config = {
-    maxSpeed: 65,
-    acceleration: 14,
+    maxSpeed: 69, // Tesla Model Y Performance: ~250 km/h (~155 mph)
+    acceleration: 7.7, // 0-60 mph in ~3.5 seconds
     groundHeight: 0.15
   };
 

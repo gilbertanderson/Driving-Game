@@ -29,9 +29,9 @@ export function OpponentTesla() {
   });
 
   const config = {
-    maxSpeed: 60, // m/s (~216 km/h)
-    acceleration: 12, // Tesla Model Y Performance-ish
-    topSpeedReached: 0.7 // Percentage of track where top speed is hit
+    maxSpeed: 69, // Ford Mustang GT: ~250 km/h (~155 mph)
+    acceleration: 6.7, // 0-60 mph in ~4.0 seconds
+    topSpeedReached: 0.7
   };
 
   useEffect(() => {
@@ -119,7 +119,7 @@ export function OpponentTesla() {
 
   return (
     <group ref={groupRef} position={[3, 0.15, 0]} rotation={[0, 0, 0]}>
-      <primitive object={clonedScene} scale={2.5} rotation={[0, -Math.PI / 2, 0]} />
+      <primitive object={clonedScene} scale={2.5} rotation={[0, Math.PI, 0]} />
       
       {/* Headlights - front of car (positive Z direction) */}
       <pointLight
