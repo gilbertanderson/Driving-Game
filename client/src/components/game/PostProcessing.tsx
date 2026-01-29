@@ -1,10 +1,11 @@
-import { EffectComposer, Bloom, Vignette, DepthOfField } from "@react-three/postprocessing";
+import { EffectComposer, Bloom, Vignette } from "@react-three/postprocessing";
 import { useRacing } from "@/lib/stores/useRacing";
 
 export function PostProcessing() {
   const { phase, speed } = useRacing();
   
   const bloomIntensity = phase === "racing" ? 0.3 + (speed / 200) * 0.4 : 0.2;
+  const vignetteIntensity = phase === "racing" ? 0.4 + (speed / 200) * 0.2 : 0.3;
   
   return (
     <EffectComposer>
@@ -16,15 +17,8 @@ export function PostProcessing() {
       />
       <Vignette
         offset={0.3}
-        darkness={phase === "racing" ? 0.4 + (speed / 200) * 0.2 : 0.3}
+        darkness={vignetteIntensity}
       />
-      {phase === "racing" && speed > 100 && (
-        <DepthOfField
-          focusDistance={0.01}
-          focalLength={0.02}
-          bokehScale={2}
-        />
-      )}
     </EffectComposer>
   );
 }

@@ -10,13 +10,20 @@ A 3D racing game featuring the Tesla Model Y as the playable vehicle, built with
 - Two camera modes: Chase and Cockpit view
 - HUD with speedometer and lap timer
 - Menu system with race results
+- Post-processing visual effects (bloom, vignette)
+- Tire smoke particle effects when driving
+- Dynamic engine sound based on speed
+- Speed boost zones on the track
+- Race countdown animation (3-2-1-GO)
 
 ## Core Features
 - **Vehicle**: Tesla Model Y 3D model with realistic controls
-- **Track**: Oval racing circuit with asphalt texture, barriers, and checkpoints
-- **Physics**: Simple arcade physics for accessible gameplay
+- **Track**: Oval racing circuit with asphalt texture, barriers, checkpoints, and speed boost zones
+- **Physics**: Simple arcade physics for accessible gameplay with speed boost mechanics
 - **UI**: Futuristic HUD with speed, lap counter, and timer
 - **Camera**: Chase camera (default) and cockpit view (press C)
+- **Effects**: Post-processing bloom/vignette, tire smoke particles
+- **Audio**: Dynamic engine sound that changes with speed
 
 ## Project Architecture
 
@@ -32,15 +39,23 @@ client/src/
 │       ├── HUD.tsx            # Speed/lap display overlay
 │       ├── Menu.tsx           # Start/finish menu
 │       ├── Environment.tsx    # Sky, lighting, scenery
-│       └── LapDetector.tsx    # Lap completion detection
-├── lib/stores/
-│   ├── useRacing.tsx          # Racing game state (Zustand)
-│   ├── useGame.tsx            # General game state
-│   └── useAudio.tsx           # Audio state
+│       ├── LapDetector.tsx    # Lap completion detection
+│       ├── PostProcessing.tsx # Bloom/vignette visual effects
+│       ├── TireSmoke.tsx      # Particle effects for tires
+│       ├── Countdown.tsx      # 3-2-1-GO race start animation
+│       ├── SpeedBoostZones.tsx# Green boost pads on track
+│       └── EngineSound.tsx    # Dynamic engine audio
+├── lib/
+│   ├── boostZones.ts          # Shared boost zone configuration
+│   └── stores/
+│       ├── useRacing.tsx      # Racing game state (Zustand)
+│       ├── useGame.tsx        # General game state
+│       └── useAudio.tsx       # Audio state
 └── public/
     ├── models/
     │   └── tesla-model-y.glb  # 3D car model
-    └── textures/              # Track and environment textures
+    ├── textures/              # Track and environment textures
+    └── sounds/                # Audio files (background, effects)
 ```
 
 ### Controls
@@ -59,6 +74,12 @@ client/src/
 - Highlights: #00D4FF (electric blue)
 
 ## Recent Changes
+- January 2026: Enhanced visual and audio experience
+  - Added post-processing effects (bloom, vignette)
+  - Added tire smoke particle effects
+  - Added dynamic engine sound based on speed
+  - Added speed boost zones on the track
+  - Added race countdown animation (3-2-1-GO)
 - January 2026: Initial implementation with all core features
   - Created Tesla Model Y racing game
   - Implemented track with barriers and checkpoints
