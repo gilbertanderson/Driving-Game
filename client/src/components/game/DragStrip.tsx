@@ -45,6 +45,30 @@ export function DragStrip() {
         <meshStandardMaterial map={sandTexture} roughness={1} color="#C4A574" />
       </mesh>
       
+      {/* Gravel strips between asphalt and sand */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-trackWidth / 2 - 1.5, 0.008, trackLength / 2 - 25]} receiveShadow>
+        <planeGeometry args={[3, trackLength + 150]} />
+        <meshStandardMaterial color="#707070" roughness={1} />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[trackWidth / 2 + 1.5, 0.008, trackLength / 2 - 25]} receiveShadow>
+        <planeGeometry args={[3, trackLength + 150]} />
+        <meshStandardMaterial color="#707070" roughness={1} />
+      </mesh>
+      
+      {/* Gravel texture lines */}
+      {Array.from({ length: 140 }).map((_, i) => (
+        <group key={`gravel-${i}`}>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-trackWidth / 2 - 1.5, 0.012, i * 5 - 50]}>
+            <planeGeometry args={[2.5, 0.3]} />
+            <meshStandardMaterial color="#5A5A5A" roughness={1} />
+          </mesh>
+          <mesh rotation={[-Math.PI / 2, 0, 0]} position={[trackWidth / 2 + 1.5, 0.012, i * 5 - 48]}>
+            <planeGeometry args={[2.5, 0.3]} />
+            <meshStandardMaterial color="#5A5A5A" roughness={1} />
+          </mesh>
+        </group>
+      ))}
+      
       {/* Grass on both sides - beyond the sand */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-50, 0, trackLength / 2 - 25]} receiveShadow>
         <planeGeometry args={[80, trackLength + 200]} />

@@ -81,8 +81,9 @@ export function FordMustang({ onPositionUpdate }: VehicleProps) {
           state.velocity.z += config.acceleration * clampedDelta;
           state.velocity.z = Math.min(state.velocity.z, config.maxSpeed);
         }
+        state.velocity.z *= 0.998;
       } else {
-        state.velocity.z *= 0.995;
+        state.velocity.z *= 0.985;
       }
       
       const steerAmount = 0.5;
