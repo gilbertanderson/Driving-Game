@@ -5,38 +5,58 @@ import { useMemo } from "react";
 export function DragStrip() {
   const asphaltTexture = useTexture("/textures/asphalt.png");
   const grassTexture = useTexture("/textures/grass.png");
+  const sandTexture = useTexture("/textures/sand.jpg");
   
   useMemo(() => {
     asphaltTexture.wrapS = asphaltTexture.wrapT = THREE.RepeatWrapping;
-    asphaltTexture.repeat.set(2, 50);
+    asphaltTexture.repeat.set(2, 60);
     grassTexture.wrapS = grassTexture.wrapT = THREE.RepeatWrapping;
-    grassTexture.repeat.set(20, 100);
-  }, [asphaltTexture, grassTexture]);
+    grassTexture.repeat.set(30, 120);
+    sandTexture.wrapS = sandTexture.wrapT = THREE.RepeatWrapping;
+    sandTexture.repeat.set(3, 60);
+  }, [asphaltTexture, grassTexture, sandTexture]);
 
-  const trackLength = 450; // Slightly longer than quarter mile for runoff
+  const trackLength = 550;
   const trackWidth = 15;
   const laneWidth = 6;
+  const sandWidth = 8;
   
   return (
     <group>
+      {/* Extended road - before start line */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, -50]} receiveShadow>
+        <planeGeometry args={[trackWidth, 100]} />
+        <meshStandardMaterial map={asphaltTexture} roughness={0.8} />
+      </mesh>
+      
       {/* Main asphalt strip */}
       <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0.01, trackLength / 2]} receiveShadow>
         <planeGeometry args={[trackWidth, trackLength]} />
         <meshStandardMaterial map={asphaltTexture} roughness={0.8} />
       </mesh>
       
-      {/* Grass on both sides */}
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-40, 0, trackLength / 2]} receiveShadow>
-        <planeGeometry args={[60, trackLength + 100]} />
+      {/* Sand/dirt strips along the road sides */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-trackWidth / 2 - sandWidth / 2, 0.005, trackLength / 2 - 25]} receiveShadow>
+        <planeGeometry args={[sandWidth, trackLength + 150]} />
+        <meshStandardMaterial map={sandTexture} roughness={1} color="#C4A574" />
+      </mesh>
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[trackWidth / 2 + sandWidth / 2, 0.005, trackLength / 2 - 25]} receiveShadow>
+        <planeGeometry args={[sandWidth, trackLength + 150]} />
+        <meshStandardMaterial map={sandTexture} roughness={1} color="#C4A574" />
+      </mesh>
+      
+      {/* Grass on both sides - beyond the sand */}
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[-50, 0, trackLength / 2 - 25]} receiveShadow>
+        <planeGeometry args={[80, trackLength + 200]} />
         <meshStandardMaterial map={grassTexture} roughness={1} />
       </mesh>
-      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[40, 0, trackLength / 2]} receiveShadow>
-        <planeGeometry args={[60, trackLength + 100]} />
+      <mesh rotation={[-Math.PI / 2, 0, 0]} position={[50, 0, trackLength / 2 - 25]} receiveShadow>
+        <planeGeometry args={[80, trackLength + 200]} />
         <meshStandardMaterial map={grassTexture} roughness={1} />
       </mesh>
       
       {/* Center lane divider - dashed white line */}
-      {Array.from({ length: 45 }).map((_, i) => (
+      {Array.from({ length: 55 }).map((_, i) => (
         <mesh 
           key={`divider-${i}`}
           rotation={[-Math.PI / 2, 0, 0]} 
@@ -91,24 +111,14 @@ export function DragStrip() {
         <meshStandardMaterial color="#FFCC00" />
       </mesh>
       
-      {/* Barriers on sides */}
-      <mesh position={[-trackWidth / 2 - 0.5, 0.5, trackLength / 2]}>
-        <boxGeometry args={[0.5, 1, trackLength]} />
-        <meshStandardMaterial color="#CC0000" />
-      </mesh>
-      <mesh position={[trackWidth / 2 + 0.5, 0.5, trackLength / 2]}>
-        <boxGeometry args={[0.5, 1, trackLength]} />
-        <meshStandardMaterial color="#CC0000" />
-      </mesh>
-      
       {/* Distance markers every 100m */}
       {[100, 200, 300, 400].map((distance) => (
         <group key={`marker-${distance}`}>
-          <mesh position={[-trackWidth / 2 - 2, 1.5, distance]}>
+          <mesh position={[-trackWidth / 2 - sandWidth - 1, 1.5, distance]}>
             <boxGeometry args={[2, 3, 0.1]} />
             <meshStandardMaterial color="#222222" />
           </mesh>
-          <mesh position={[trackWidth / 2 + 2, 1.5, distance]}>
+          <mesh position={[trackWidth / 2 + sandWidth + 1, 1.5, distance]}>
             <boxGeometry args={[2, 3, 0.1]} />
             <meshStandardMaterial color="#222222" />
           </mesh>
