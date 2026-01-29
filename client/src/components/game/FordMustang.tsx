@@ -131,6 +131,9 @@ export function FordMustang({ onPositionUpdate }: VehicleProps) {
         const material = (child.material as THREE.MeshStandardMaterial).clone();
         if (material.color) {
           material.color.setHex(0x1a237e); // Blue
+          material.metalness = 0.9;
+          material.roughness = 0.15;
+          material.envMapIntensity = 1.5;
         }
         child.material = material;
       }
@@ -141,30 +144,82 @@ export function FordMustang({ onPositionUpdate }: VehicleProps) {
     <group ref={groupRef} position={[-3, 0.15, 0]} rotation={[0, 0, 0]}>
       <primitive object={clonedScene} scale={2.5} rotation={[0, -Math.PI / 2, 0]} />
       
+      {/* Chrome trim accents */}
+      <mesh position={[0, 0.35, 2.3]} castShadow>
+        <boxGeometry args={[1.6, 0.03, 0.05]} />
+        <meshStandardMaterial color="#C0C0C0" metalness={1} roughness={0.1} />
+      </mesh>
+      <mesh position={[0, 0.35, -2]} castShadow>
+        <boxGeometry args={[1.4, 0.03, 0.05]} />
+        <meshStandardMaterial color="#C0C0C0" metalness={1} roughness={0.1} />
+      </mesh>
+      
+      {/* Tesla logo glow on front */}
+      <mesh position={[0, 0.4, 2.4]}>
+        <circleGeometry args={[0.12, 16]} />
+        <meshStandardMaterial color="#E82127" emissive="#E82127" emissiveIntensity={0.5} />
+      </mesh>
+      
+      {/* LED headlight strips */}
+      <mesh position={[0.55, 0.35, 2.45]}>
+        <boxGeometry args={[0.4, 0.05, 0.02]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={1} />
+      </mesh>
+      <mesh position={[-0.55, 0.35, 2.45]}>
+        <boxGeometry args={[0.4, 0.05, 0.02]} />
+        <meshStandardMaterial color="#FFFFFF" emissive="#FFFFFF" emissiveIntensity={1} />
+      </mesh>
+      
+      {/* LED taillight strips */}
+      <mesh position={[0.5, 0.35, -2.1]}>
+        <boxGeometry args={[0.5, 0.08, 0.02]} />
+        <meshStandardMaterial color="#FF0000" emissive="#FF0000" emissiveIntensity={0.8} />
+      </mesh>
+      <mesh position={[-0.5, 0.35, -2.1]}>
+        <boxGeometry args={[0.5, 0.08, 0.02]} />
+        <meshStandardMaterial color="#FF0000" emissive="#FF0000" emissiveIntensity={0.8} />
+      </mesh>
+      <mesh position={[0, 0.35, -2.1]}>
+        <boxGeometry args={[0.8, 0.04, 0.02]} />
+        <meshStandardMaterial color="#FF0000" emissive="#FF0000" emissiveIntensity={0.6} />
+      </mesh>
+      
+      {/* Side mirrors */}
+      <mesh position={[0.75, 0.5, 0.8]} rotation={[0, 0.3, 0]} castShadow>
+        <boxGeometry args={[0.15, 0.08, 0.2]} />
+        <meshStandardMaterial color="#1a237e" metalness={0.9} roughness={0.15} />
+      </mesh>
+      <mesh position={[-0.75, 0.5, 0.8]} rotation={[0, -0.3, 0]} castShadow>
+        <boxGeometry args={[0.15, 0.08, 0.2]} />
+        <meshStandardMaterial color="#1a237e" metalness={0.9} roughness={0.15} />
+      </mesh>
+      
+      {/* Headlights */}
       <pointLight
         position={[0.6, 0.3, 2.5]}
         color="#FFFFFF"
-        intensity={2}
-        distance={20}
+        intensity={3}
+        distance={25}
       />
       <pointLight
         position={[-0.6, 0.3, 2.5]}
         color="#FFFFFF"
-        intensity={2}
-        distance={20}
+        intensity={3}
+        distance={25}
       />
       
+      {/* Taillights */}
       <pointLight
         position={[0.5, 0.3, -2]}
         color="#E82127"
-        intensity={1}
-        distance={10}
+        intensity={2}
+        distance={15}
       />
       <pointLight
         position={[-0.5, 0.3, -2]}
         color="#E82127"
-        intensity={1}
-        distance={10}
+        intensity={2}
+        distance={15}
       />
     </group>
   );
