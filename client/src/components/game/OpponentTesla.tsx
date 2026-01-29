@@ -38,7 +38,7 @@ export function OpponentTesla() {
     // Reset opponent state when race starts
     if (phase === "staging") {
       opponentState.current = {
-        position: new THREE.Vector3(3, 0.15, 0),
+        position: new THREE.Vector3(3, 0.5, 0),
         velocity: 0,
         hasLaunched: false,
         launchDelay: 0.15 + Math.random() * 0.1,
@@ -47,7 +47,7 @@ export function OpponentTesla() {
         startTime: 0
       };
       if (groupRef.current) {
-        groupRef.current.position.set(3, 0.15, 0);
+        groupRef.current.position.set(3, 0.5, 0);
       }
     }
   }, [phase]);
@@ -118,8 +118,8 @@ export function OpponentTesla() {
   });
 
   return (
-    <group ref={groupRef} position={[3, 0.15, 0]} rotation={[0, 0, 0]}>
-      <primitive object={clonedScene} scale={2.5} rotation={[0, 0, 0]} />
+    <group ref={groupRef} position={[3, 0.5, 0]} rotation={[0, 0, 0]}>
+      <primitive object={clonedScene} scale={2.5} rotation={[0, Math.PI, 0]} />
       
       {/* Headlights - front of car (positive Z direction) */}
       <pointLight

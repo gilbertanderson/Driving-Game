@@ -26,7 +26,7 @@ export function FordMustang({ onPositionUpdate }: VehicleProps) {
   const [, getKeys] = useKeyboardControls();
   
   const vehicleState = useRef({
-    position: new THREE.Vector3(-3, 0.15, 0),
+    position: new THREE.Vector3(-3, 0.5, 0),
     velocity: new THREE.Vector3(0, 0, 0),
     rotation: 0,
     wheelRotation: 0,
@@ -38,13 +38,13 @@ export function FordMustang({ onPositionUpdate }: VehicleProps) {
   const config = {
     maxSpeed: 69, // Tesla Model Y Performance: ~250 km/h (~155 mph)
     acceleration: 7.7, // 0-60 mph in ~3.5 seconds
-    groundHeight: 0.15
+    groundHeight: 0.5
   };
 
   useEffect(() => {
     if (phase === "staging") {
       vehicleState.current = {
-        position: new THREE.Vector3(-3, 0.15, 0),
+        position: new THREE.Vector3(-3, 0.5, 0),
         velocity: new THREE.Vector3(0, 0, 0),
         rotation: 0,
         wheelRotation: 0,
@@ -141,8 +141,8 @@ export function FordMustang({ onPositionUpdate }: VehicleProps) {
   });
 
   return (
-    <group ref={groupRef} position={[-3, 0.15, 0]} rotation={[0, 0, 0]}>
-      <primitive object={clonedScene} scale={2.5} rotation={[0, 0, 0]} />
+    <group ref={groupRef} position={[-3, 0.5, 0]} rotation={[0, 0, 0]}>
+      <primitive object={clonedScene} scale={2.5} rotation={[0, Math.PI, 0]} />
       
       {/* Chrome trim accents */}
       <mesh position={[0, 0.35, 2.3]} castShadow>
