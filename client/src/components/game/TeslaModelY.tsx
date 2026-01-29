@@ -3,6 +3,7 @@ import * as THREE from "three";
 import { useFrame } from "@react-three/fiber";
 import { useGLTF, useKeyboardControls } from "@react-three/drei";
 import { useRacing } from "@/lib/stores/useRacing";
+import { checkBoostZone } from "@/lib/boostZones";
 
 interface VehicleProps {
   onPositionUpdate?: (position: THREE.Vector3, rotation: number) => void;
@@ -27,6 +28,12 @@ export function TeslaModelY({ onPositionUpdate }: VehicleProps) {
     steeringAngle: 0
   });
 
+  const boostState = useRef({
+    active: false,
+    timer: 0,
+    cooldown: 0
+  });
+
   const config = {
     maxSpeed: 55,
     acceleration: 25,
@@ -35,7 +42,9 @@ export function TeslaModelY({ onPositionUpdate }: VehicleProps) {
     turnSpeed: 2.5,
     maxTurnAngle: 0.6,
     turnFriction: 0.95,
-    groundHeight: 0.5
+    groundHeight: 0.5,
+    boostMultiplier: 1.5,
+    boostDuration: 2
   };
 
   useFrame((_, delta) => {
@@ -57,8 +66,30 @@ export function TeslaModelY({ onPositionUpdate }: VehicleProps) {
     const speed = state.velocity.length();
     const speedRatio = Math.min(speed / config.maxSpeed, 1);
     
+    const boost = boostState.current;
+    if (boost.cooldown > 0) {
+      boost.cooldown -= clampedDelta;
+    }
+    
+    const inBoostZone = checkBoostZone(state.position.x, state.position.z);
+    
+    if (inBoostZone && !boost.active && boost.cooldown <= 0) {
+      boost.active = true;
+      boost.timer = config.boostDuration;
+    }
+    
+    if (boost.active) {
+      boost.timer -= clampedDelta;
+      if (boost.timer <= 0) {
+        boost.active = false;
+        boost.cooldown = 3;
+      }
+    }
+    
+    const boostMultiplier = boost.active ? config.boostMultiplier : 1;
+    
     if (accelerationInput !== 0) {
-      const force = accelerationInput * config.acceleration * clampedDelta;
+      const force = accelerationInput * config.acceleration * boostMultiplier * clampedDelta;
       const direction = new THREE.Vector3(
         Math.sin(state.rotation),
         0,
@@ -73,9 +104,10 @@ export function TeslaModelY({ onPositionUpdate }: VehicleProps) {
     
     state.velocity.multiplyScalar(config.friction);
     
+    const effectiveMaxSpeed = config.maxSpeed * boostMultiplier;
     const currentSpeed = state.velocity.length();
-    if (currentSpeed > config.maxSpeed) {
-      state.velocity.normalize().multiplyScalar(config.maxSpeed);
+    if (currentSpeed > effectiveMaxSpeed) {
+      state.velocity.normalize().multiplyScalar(effectiveMaxSpeed);
     }
     
     if (steeringInput !== 0 && speed > 0.5) {

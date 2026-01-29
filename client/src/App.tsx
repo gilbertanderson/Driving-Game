@@ -10,6 +10,11 @@ import { HUD } from "./components/game/HUD";
 import { Menu } from "./components/game/Menu";
 import { Environment } from "./components/game/Environment";
 import { LapDetector } from "./components/game/LapDetector";
+import { PostProcessing } from "./components/game/PostProcessing";
+import { TireSmoke } from "./components/game/TireSmoke";
+import { Countdown } from "./components/game/Countdown";
+import { SpeedBoostZones } from "./components/game/SpeedBoostZones";
+import { EngineSound } from "./components/game/EngineSound";
 import { useRacing } from "./lib/stores/useRacing";
 
 enum Controls {
@@ -107,18 +112,23 @@ function Game() {
         <Suspense fallback={null}>
           <Environment />
           <Track />
+          <SpeedBoostZones />
           {phase === "racing" && (
             <>
               <TeslaModelY />
               <LapDetector />
+              <TireSmoke />
             </>
           )}
           <RacingCamera />
+          <PostProcessing />
         </Suspense>
       </Canvas>
 
       <HUD />
       <Menu />
+      <Countdown />
+      <EngineSound />
       <CameraToggleHandler />
     </>
   );
