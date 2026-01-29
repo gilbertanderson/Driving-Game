@@ -103,6 +103,8 @@ export function TireSmoke() {
     }
   });
   
+  if (phase !== "racing") return null;
+  
   return (
     <instancedMesh ref={meshRef} args={[undefined, undefined, maxParticles]}>
       <sphereGeometry args={[1, 8, 8]} />
